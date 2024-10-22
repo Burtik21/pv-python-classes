@@ -3,85 +3,94 @@ class Node:
         self.data = data
         self.next = None
 
-class SinglyLinkedList:
+class StackUsingSinglyLinkedList:
     def __init__(self):
-        self.head = None
+        self.top = None
+        self.size = 0
 
-    def append(self, data):
+    def add(self, data):
         new_node = Node(data)
-        if not self.head:
-            self.head = new_node
-            return
-        last_node = self.head
-        while last_node.next:
-            last_node = last_node.next
-        last_node.next = new_node
+        new_node.next = self.top
+        self.top = new_node
+        self.size += 1
 
-    def __iter__(self):
-        self.current = self.head
-        return self
+    def pop(self):
+        if self.top is None:
+            raise IndexError("Cannot pop from an empty stack.")
+        popped_data = self.top.data
+        self.top = self.top.next
+        self.size -= 1
+        return popped_data
 
-    def __next__(self):
-        if self.current:
-            data = self.current.data
-            self.current = self.current.next
-            return data
-        else:
-            raise StopIteration
+    def count(self):
+        return self.size
 
+    def clear(self):
+        self.top = None
+        self.size = 0
+
+    def popAll(self):
+        elements = []
+        while self.top is not None:
+            elements.append(self.pop())
+        return elements
+
+    # Overload the __contains__ method for 'in' operator functionality
     def __contains__(self, item):
-        current = self.head
-        while current:
+        current = self.top
+        while current is not None:
             if current.data == item:
                 return True
             current = current.next
         return False
 
-    def __len__(self):
-        count = 0
-        current = self.head
-        while current:
-            count += 1
+    # Overload the __reversed__ method to reverse the stack
+    def __reversed__(self):
+        reversed_stack = StackUsingSinglyLinkedList()
+        current = self.top
+        while current is not None:
+            reversed_stack.add(current.data)
             current = current.next
-        return count
+        return reversed_stack
 
-    def __getitem__(self, index):
-        if index < 0:
-            raise IndexError("Index must be non-negative")
-        current = self.head
-        for _ in range(index):
-            if current is None:
-                raise IndexError("Index out of range")
+    # A helper method to view the stack contents as a list (for testing purposes)
+    def to_list(self):
+        elements = []
+        current = self.top
+        while current is not None:
+            elements.append(current.data)
             current = current.next
-        if current is None:
-            raise IndexError("Index out of range")
-        return current.data
+        return elements
 
-    def __setitem__(self, index, value):
-        if index < 0:
-            raise IndexError("Index must be non-negative")
-        current = self.head
-        for _ in range(index):
-            if current is None:
-                raise IndexError("Index out of range")
-            current = current.next
-        if current is None:
-            raise IndexError("Index out of range")
-        current.data = value
 
-# Příklad použití
-seznam = SinglyLinkedList()
-seznam.append("Pepa")
-seznam.append("Karel")
-seznam.append("Mirka")
+# Example usage
+stack = StackUsingSinglyLinkedList()
 
-for prvek in seznam:
-    print(prvek)
+stack.add(10)
+stack.add(20)
+stack.add(30)
+stack.add(40)
+stack.add(50)
 
-if "Pepa" in seznam:
-    print("Pepa je v seznamu")
+print(f"Popped item: {stack.pop()}")
+print(f"Stack size: {stack.count()}")
 
-print(len(seznam))
-print(seznam[1])  # vrátí "Karel"
-seznam[0] = "Nový Pepa"
-print(seznam[0])  # vrátí "Nový Pepa"
+print(f"Stack contents (before popAll): {stack.to_list()}")
+print(f"Popped all: {stack.popAll()}")
+print(f"Stack size after popAll: {stack.count()}")
+
+stack.add(100)
+stack.add(200)
+stack.add(300)
+
+# Check if an element is in the stack using the 'in' operator
+if 200 in stack:
+    print("200 is in the stack")
+
+if 400 not in stack:
+    print("400 is not in the stack")
+
+# Reverse the stack
+reversed_stack = reversed(stack)
+print(f"Original stack (after reversing): {stack.to_list()}")
+print(f"Reversed stack contents: {reversed_stack.to_list()}")
